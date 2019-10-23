@@ -4,38 +4,43 @@
  * and open the template in the editor.
  */
 package Evaluador;
+
 import ufps.util.colecciones_seed.*;
 import ufps.util.varios.ArchivoLeerURL;
+
 /**
  *
  * @author estudiante
  */
 public class EvaluadorExpresiones {
-    
-    //listaCD<ListaCd<ListaCd<string>>>
-    private ListaCD<Expresion> expresiones=new ListaCD();
 
-    
+    //listaCD<ListaCd<ListaCd<string>>>
+    private ListaCD<Expresion> expresiones = new ListaCD();
+
     public EvaluadorExpresiones(String url) {
-        
-    ArchivoLeerURL file=new ArchivoLeerURL(url);
-    Object v[]=file.leerArchivo();    
-    for(Object dato:v)
-        {
-            Expresion nueva=new Expresion(dato.toString());
+
+        ArchivoLeerURL file = new ArchivoLeerURL(url);
+        Object v[] = file.leerArchivo();
+        for (Object dato : v) {
+            Expresion nueva = new Expresion(dato.toString());
             this.expresiones.insertarAlFinal(nueva);
         }
-    
-    
     }
-    
-    
-    public String toString()
-    {
+
+    public String evaluarExpresion() {
         String msg="";
-        for(Expresion dato:this.expresiones)
-            msg+=dato.toString()+"\n";
-     return msg;
+        for (Expresion e : expresiones) {
+            msg+=e.expresionValida();
+        }   
+        return msg;
+    }
+
+    public String toString() {
+        String msg = "";
+        for (Expresion dato : this.expresiones) {
+            msg += dato.toString() + "\n";
+        }
+        return msg;
     }
 
     public ListaCD<Expresion> getExpresiones() {
@@ -45,8 +50,4 @@ public class EvaluadorExpresiones {
     public void setExpresiones(ListaCD<Expresion> expresiones) {
         this.expresiones = expresiones;
     }
-    
-    
-    
-    
 }
