@@ -31,9 +31,7 @@ public class Expresion {
         Object v[] = this.expresiones.aVector();
         String cadena = "";
         String msg = "";
-        String op = "";
-        op += v[0];
-        cadena += op;
+        cadena += v[0];
         for (int i = 1; i < v.length; i++) {
 //            if (v[i].equals("(") && !op.equals("(") && !esOperador(op)) {
 //                cadena += ",*," + v[i];
@@ -41,12 +39,13 @@ public class Expresion {
 //            } else if (op.equals(")") && !esOperador((String) v[i])) {
 //                cadena += ",*," + v[i];
 //            } else {
-                cadena += "," + v[i];
+//            cadena += "," + v[i];
 //                op = "" + v[i];
 //            }
+            cadena += "," + v[i];
         }
-        System.out.println(cadena);
         if (validarParentesis(cadena)) {
+            msg += cadena + "\n";
             msg += "Posfijo: " + getPosfijo(cadena) + "\n";
         }
         return msg;
@@ -70,10 +69,12 @@ public class Expresion {
         for (String e : v) {
             if (e.equals('(')) {
                 p1.apilar(e);
-            } else if (e.equals(')') && !p1.esVacia()) {
-                p1.desapilar();
-            } else {
-                return false;
+            } else if (e.equals(')')) {
+                if (!p1.esVacia()) {
+                    p1.desapilar();
+                } else {
+                    return false;
+                }
             }
         }
         return p1.esVacia();
@@ -85,7 +86,6 @@ public class Expresion {
 
     public String getPosfijo(String c) {
         String[] v = c.split(",");
-
         Pila<String> p1 = new Pila<>();
         Pila<String> p2 = new Pila<>();
         ListaCD<String> posfijo = new ListaCD<>();
@@ -103,32 +103,58 @@ public class Expresion {
                 case "-":
                 case "*":
                 case "/":
-                    p1.apilar(dato);
-                    tamanio++;
+                    if (p2.esVacia()) {
+                        p1.apilar(dato);
+                        tamanio++;
+                    } else {
+                        p2.apilar(dato);
+                    }
                     break;
                 case "(":
                     p2.apilar(dato);
                     break;
                 case ")":
-                    p2.desapilar();
-                    while (!p1.esVacia()) {
-                        posfijo.insertarAlFinal(p1.desapilar());
-                        tamanio--;
+                    while (!p2.esVacia()) {
+                        String desapilar = p2.desapilar();
+                        if (desapilar.equals("(")) {
+                            break;
+                        }
+                        if (!p2.esVacia()) {
+                            String des = p2.desapilar();
+                            if (!des.equals("(")) {
+                                if (getPrioridad(desapilar) <= getPrioridad(des)) {
+                                    posfijo.insertarAlFinal(des);
+                                    posfijo.insertarAlFinal(desapilar);
+                                } else {
+                                    posfijo.insertarAlFinal(desapilar);
+                                    posfijo.insertarAlFinal(des);
+                                }
+                            } else {
+                                posfijo.insertarAlFinal(desapilar);
+                                break;
+                            }
+                        } else {
+                            posfijo.insertarAlFinal(desapilar);
+                        }
                     }
                     break;
                 default:
-                    posfijo.insertarAlFinal(dato);
+                    
                     if (tamanio > 1) {
                         String tope = p1.desapilar();
-                        String des=p1.desapilar();
-                        tamanio-=2;
+                        String des = p1.desapilar();
+                        tamanio -= 2;
                         if (getPrioridad(tope) <= getPrioridad(des)) {
                             posfijo.insertarAlFinal(des);
+                            posfijo.insertarAlFinal(dato);
                             posfijo.insertarAlFinal(tope);
                         } else {
+                            posfijo.insertarAlFinal(dato);
                             posfijo.insertarAlFinal(tope);
                             posfijo.insertarAlFinal(des);
                         }
+                    } else {
+                        posfijo.insertarAlFinal(dato);
                     }
                     break;
             }
@@ -152,6 +178,10 @@ public class Expresion {
     private int getPrioridad(String dato) {
         int prioridad = 6;
 
+        if (dato.equals("(") || dato.equals(")")) {
+            prioridad = 6;
+        }
+        
         if (dato.equals("*") || dato.equals("/")) {
             prioridad = 5;
         }

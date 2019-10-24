@@ -30,7 +30,7 @@ public class EvaluadorExpresiones {
     public String evaluarExpresion() {
         String msg="";
         for (Expresion e : expresiones) {
-            msg+=e.expresionValida();
+            msg+=e.expresionValida()+"\n";
         }   
         return msg;
     }
