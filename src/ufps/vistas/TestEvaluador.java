@@ -19,11 +19,14 @@ public class TestEvaluador {
 //        EvaluadorExpresiones ev=new EvaluadorExpresiones(url);
 //        System.out.println(ev);
 //        System.out.println(ev.evaluarExpresion());
-        Expresion e = new Expresion("(,2,+,8,),2");
-        System.out.println(e.expresionValida());
+        Expresion e = new Expresion("a,+,b,*,c,+,d,/,e");
+//        System.out.println(e.expresionValida());
+        
+//        System.out.println(e.getPosfijo("a,+,b,*,c,+,d,/,e"));
+//        System.out.println(e.getPosfijo("a,+,b,*,c"));
+//        System.out.println(e.getPosfijo("a,+,b,-,c"));
         System.out.println(e.getPosfijo("123,*,(,12,+,3,),+,4,*,(,6,+,2,)"));
-        System.out.println(e.getPosfijo("(4,+,(,8,(,5,*,9,)))"));
-//        System.out.println(e.getPosfijo("(,4,-,(,(,8,+,9,),*,(,4,/,2,),),)"));
+        
 //        
     }
 }

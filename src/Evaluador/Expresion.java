@@ -35,15 +35,15 @@ public class Expresion {
         op += v[0];
         cadena += op;
         for (int i = 1; i < v.length; i++) {
-            if (v[i].equals("(") && !op.equals("(") && !esOperador(op)) {
-                cadena += ",*," + v[i];
-                op = "" + v[i];
-            } else if (op.equals(")") && !esOperador((String) v[i])) {
-                cadena += ",*," + v[i];
-            } else {
+//            if (v[i].equals("(") && !op.equals("(") && !esOperador(op)) {
+//                cadena += ",*," + v[i];
+//                op = "" + v[i];
+//            } else if (op.equals(")") && !esOperador((String) v[i])) {
+//                cadena += ",*," + v[i];
+//            } else {
                 cadena += "," + v[i];
-                op = "" + v[i];
-            }
+//                op = "" + v[i];
+//            }
         }
         System.out.println(cadena);
         if (validarParentesis(cadena)) {
@@ -71,16 +71,14 @@ public class Expresion {
             if (e.equals('(')) {
                 p1.apilar(e);
             } else if (e.equals(')') && !p1.esVacia()) {
-                    p1.desapilar();
-                } else {
-                    return false;
-                }
+                p1.desapilar();
+            } else {
+                return false;
             }
+        }
         return p1.esVacia();
     }
 
-    
-    
     public String getPrefijo() {
         return "";
     }
@@ -91,14 +89,22 @@ public class Expresion {
         Pila<String> p1 = new Pila<>();
         Pila<String> p2 = new Pila<>();
         ListaCD<String> posfijo = new ListaCD<>();
-        String op = "";
+        int tamanio = 0;
+
         for (String dato : v) {
+            // 6+5-3*7/4
+            //cola-> 6,5,+,3,7,
+            //pila-> +,
+            //entra-> ('-') -> ('-' <= '+') -> cola->'+' y apila '-'
+            //pila-> -,*,/
+
             switch (dato) {
                 case "+":
                 case "-":
                 case "*":
                 case "/":
                     p1.apilar(dato);
+                    tamanio++;
                     break;
                 case "(":
                     p2.apilar(dato);
@@ -107,16 +113,31 @@ public class Expresion {
                     p2.desapilar();
                     while (!p1.esVacia()) {
                         posfijo.insertarAlFinal(p1.desapilar());
+                        tamanio--;
                     }
                     break;
                 default:
                     posfijo.insertarAlFinal(dato);
-                    while (!p1.esVacia() && p2.esVacia()) {
-                        posfijo.insertarAlFinal(p1.desapilar());
+                    if (tamanio > 1) {
+                        String tope = p1.desapilar();
+                        String des=p1.desapilar();
+                        tamanio-=2;
+                        if (getPrioridad(tope) <= getPrioridad(des)) {
+                            posfijo.insertarAlFinal(des);
+                            posfijo.insertarAlFinal(tope);
+                        } else {
+                            posfijo.insertarAlFinal(tope);
+                            posfijo.insertarAlFinal(des);
+                        }
                     }
                     break;
             }
         }
+
+        while (!p1.esVacia()) {
+            posfijo.insertarAlFinal(p1.desapilar());
+        }
+
         String pos = "";
         for (String dato : posfijo) {
             pos += dato + ",";
@@ -127,16 +148,20 @@ public class Expresion {
     public float getEvaluarPosfijo() {
         return 0.0f;
     }
-    
-    private int getPrioridad(String dato){
-      int prioridad=6;
-      
-      if(dato.equals("*")||dato.equals("/"))prioridad=5;
-      if(dato.equals("+")||dato.equals("-"))prioridad=4;
-      
-      return prioridad;
+
+    private int getPrioridad(String dato) {
+        int prioridad = 6;
+
+        if (dato.equals("*") || dato.equals("/")) {
+            prioridad = 5;
+        }
+        if (dato.equals("+") || dato.equals("-")) {
+            prioridad = 4;
+        }
+
+        return prioridad;
     }
-    
+
     public ListaCD<String> getExpresiones() {
         return expresiones;
     }
