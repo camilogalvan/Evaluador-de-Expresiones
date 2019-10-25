@@ -14,7 +14,6 @@ import ufps.util.varios.ArchivoLeerURL;
  */
 public class EvaluadorExpresiones {
 
-    //listaCD<ListaCd<ListaCd<string>>>
     private ListaCD<Expresion> expresiones = new ListaCD();
 
     public EvaluadorExpresiones(String url) {
@@ -30,7 +29,7 @@ public class EvaluadorExpresiones {
     public String evaluarExpresion() {
         String msg="";
         for (Expresion e : expresiones) {
-            msg+=e.expresionValida()+"\n";
+            msg+=e.expresionValida();
         }   
         return msg;
     }
