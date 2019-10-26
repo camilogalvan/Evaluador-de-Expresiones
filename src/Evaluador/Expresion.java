@@ -35,10 +35,10 @@ public class Expresion {
         for (int i = 1; i < v.length; i++) {
             cadena += "," + v[i];
         }
-        if (validarParentesis(cadena)) {
-            msg += "Posfijo: " + getPosfijo() + "\n";
-            msg += "Prefijo: " + getPrefijo(voltearCadenaPre(getPosfijo())) + "\n";
-            msg += "Resultado: " + getEvaluarPosfijo() + "\n";
+        if (validarParentesis(cadena) && validarOperadores(cadena)) {
+            msg += "Posfijo: " + getPosfijo(cadena) + "\n";
+            msg += "Prefijo: " + getPrefijo(voltearCadenaPre(getPosfijo(cadena))) + "\n";
+            msg += "Resultado: " + getEvaluarPosfijo(cadena) + "\n";
         } else {
             msg += "Error de expresión: " + cadena + "\n";
         }
@@ -61,13 +61,60 @@ public class Expresion {
                 || l.equals("/"));
     }
 
+    public String negacion(String c) {
+        String[] v = c.split(",");
+        String op = v[0];
+        int numN = 0;
+        ListaCD<String> pos = new ListaCD<>();
+
+        for (int i = 1; i < v.length; i++) {
+            if (op.equals("-") && op.equals(v[i])) {
+                numN++;
+            } else {
+                if (op.equals("-") && !esOperador(v[i])) {
+                    if (numN % 2 != 0) {
+                        pos.insertarAlFinal("+");
+                    } else {
+                        pos.insertarAlFinal(op);
+                    }
+                } else {
+                    pos.insertarAlFinal(op);
+                }
+            }
+            op = v[i];
+        }
+        pos.insertarAlFinal(v[v.length - 1]);
+        return getPostfYPref(pos);
+    }
+
+    private boolean validarOperadores(String c) {
+        String[] v = c.split(",");
+        String op = v[0];
+
+        for (String dato : v) {
+            if (esOperador(op) && esOperador(dato) && !dato.equals("-")) {
+                return false;
+            } else if (!op.equals("-") && !dato.equals("-") && esOperador(op) && esOperador(dato)) {
+                return false;
+            } else if (op.equals("(") && !dato.equals("-") && esOperador(dato)) {
+                return false;
+            } else if (!esOperador(op)&& !op.equals("(") && dato.equals("(")) {
+                return false;
+            } else if (op.equals(")") && !esOperador(dato)) {
+                return false;
+            } 
+            op = dato;
+        }
+        return true;
+    }
+
     private boolean validarParentesis(String c) {
         Pila<String> p1 = new Pila<>();
         String[] v = c.split(",");
         for (String e : v) {
-            if (e.equals('(')) {
+            if (e.equals("(")) {
                 p1.apilar(e);
-            } else if (e.equals(')')) {
+            } else if (e.equals(")")) {
                 if (!p1.esVacia()) {
                     p1.desapilar();
                 } else {
@@ -78,11 +125,12 @@ public class Expresion {
         return p1.esVacia();
     }
 
-    public String getPosfijo() {
+    public String getPosfijo(String c) {
+        String[] v = c.split(",");
         Pila<String> p1 = new Pila<>();
         ListaCD<String> posfijo = new ListaCD<>();
 
-        for (String dato : this.expresiones) {
+        for (String dato : v) {
             switch (dato) {
                 case "+":
                 case "-":
@@ -180,27 +228,33 @@ public class Expresion {
         }
         return pos;
     }
-    
-    public float getEvaluarPosfijo() {
-        String[] v = this.getPosfijo().split(",");
+
+    public float getEvaluarPosfijo(String c) {
+        String[] v = this.getPosfijo(negacion(c)).split(",");
         Pila<String> p1 = new Pila<>();
-        float op1;
-        float op2;
+        float op1 = 1;
+        float op2 = 1;
         float resultado;
+        boolean esNegativo = false;
 
         for (String dato : v) {
             if (!esOperador(dato)) {
                 p1.apilar(dato);
             } else {
-                op2 = Float.parseFloat(p1.desapilar());
-                op1 = Float.parseFloat(p1.desapilar());
+                op2 = !p1.esVacia() ? Float.parseFloat(p1.desapilar()) : op2;
+                if (dato.equals("-") && p1.esVacia()) {
+                    op1 = -1;
+                    esNegativo = true;
+                }
+                op1 = !p1.esVacia() ? Float.parseFloat(p1.desapilar()) : dato.equals("+") ? 0 : op1;
+
                 switch (dato) {
                     case "+":
                         resultado = op1 + op2;
                         p1.apilar(Float.toString(resultado));
                         break;
                     case "-":
-                        resultado = op1 - op2;
+                        resultado = !esNegativo ? op1 - op2 : op1 * op2;
                         p1.apilar(Float.toString(resultado));
                         break;
                     case "*":

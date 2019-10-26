@@ -6,6 +6,7 @@
 package ufps.vistas;
 
 import Evaluador.EvaluadorExpresiones;
+import Evaluador.Expresion;
 
 /**
  *
