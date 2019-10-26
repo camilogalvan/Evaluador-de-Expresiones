@@ -26,8 +26,10 @@ public class Expresion {
         }
     }
 
-    public String expresionValida() {
-
+    public String expresionValida()throws Exception {
+        if(this.expresiones.esVacia())
+            throw new Exception("Error, no existe ninguna expresión");
+        
         Object v[] = this.expresiones.aVector();
         String cadena = "";
         String msg = "";

@@ -29,7 +29,11 @@ public class EvaluadorExpresiones {
     public String evaluarExpresion() {
         String msg="";
         for (Expresion e : expresiones) {
-            msg+=e.expresionValida();
+            try {
+                msg+=e.expresionValida();
+            } catch (Exception ex) {
+                System.err.println(ex.getMessage());
+            }
         }   
         return msg;
     }
